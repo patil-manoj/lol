@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Kinship - Your Voice Companion",
+  title: "Talk to Me - Your Voice Companion",
   description:
     "A voice-based AI companion for emotional support and meaningful conversations",
   keywords: [
@@ -12,9 +12,9 @@ export const metadata: Metadata = {
     "mental wellness",
     "loneliness",
   ],
-  authors: [{ name: "Kinship" }],
+  authors: [{ name: "Talk to Me" }],
   openGraph: {
-    title: "Kinship - Your Voice Companion",
+    title: "Talk to Me - Your Voice Companion",
     description: "A voice-based AI companion for emotional support",
     type: "website",
   },

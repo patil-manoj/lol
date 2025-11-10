@@ -1,4 +1,4 @@
--- Supabase Database Schema for Kinship Voice Companion
+-- Supabase Database Schema for Talk to Me Voice Companion
 -- Run this SQL in your Supabase SQL editor to create the necessary tables
 
 -- Enable UUID extension

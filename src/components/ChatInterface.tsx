@@ -133,10 +133,10 @@ export default function ChatInterface() {
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-lg">K</span>
+              <span className="text-white font-bold text-lg">T</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">Kinship</h1>
+              <h1 className="text-xl font-bold text-gray-900">Talk to Me</h1>
               <p className="text-sm text-gray-500">Your voice companion</p>
             </div>
           </div>

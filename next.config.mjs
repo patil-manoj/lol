@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   env: {
-    NEXT_PUBLIC_APP_NAME: "Kinship",
+    NEXT_PUBLIC_APP_NAME: "Talk to Me",
   },
 };
 

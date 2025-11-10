@@ -1,8 +1,8 @@
 {
-  "name": "kinship-voice-companion",
+  "name": "talk-to-me",
   "version": "0.1.0",
   "private": true,
-  "description": "Voice-based AI companion for emotional support and loneliness",
+  "description": "Talk to Me - Voice-based AI companion for emotional support and loneliness",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

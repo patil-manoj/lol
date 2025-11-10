@@ -1,4 +1,4 @@
-# Kinship Voice Companion - Development Notes
+# Talk to Me - Voice Companion - Development Notes
 
 ## Architecture Decisions
 

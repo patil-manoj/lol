@@ -23,7 +23,7 @@ export default function MessageList({ messages }: MessageListProps) {
         <div className="text-center max-w-md">
           <Bot className="w-16 h-16 text-warm-400 mx-auto mb-4" />
           <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-            Welcome to Kinship
+            Welcome to Talk to Me
           </h2>
           <p className="text-gray-600">
             I'm here to listen and support you. Click the microphone below to

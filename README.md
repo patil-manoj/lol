@@ -1,8 +1,8 @@
-# 🎙️ Kinship - Voice-Based AI Companion
+# 🎙️ Talk to Me - Voice-Based AI Companion
 
 A free, voice-first AI companion designed to provide emotional support and meaningful conversations for people experiencing loneliness. Built with Next.js, Web Speech API, and Groq's free LLM API.
 
-![Kinship Banner](https://img.shields.io/badge/Built%20with-Next.js-black?style=for-the-badge&logo=next.js)
+![Talk to Me Banner](https://img.shields.io/badge/Built%20with-Next.js-black?style=for-the-badge&logo=next.js)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 ![Free](https://img.shields.io/badge/Cost-$0%2Fmonth-green?style=for-the-badge)
 
@@ -120,7 +120,7 @@ npm run dev
 ## 📁 Project Structure
 
 ```
-kinship-voice-companion/
+talk-to-me/
 ├── src/
 │   ├── app/
 │   │   ├── api/
@@ -184,7 +184,7 @@ utterance.volume = 1.0; // 0.0 to 1.0
 Edit the system prompt in `src/app/api/chat/route.ts`:
 
 ```typescript
-const SYSTEM_PROMPT = `You are Kinship, a warm, empathetic AI companion...`;
+const SYSTEM_PROMPT = `You are Talk to Me, a warm, empathetic AI companion...`;
 ```
 
 ### Adjust Emotion Detection
@@ -316,9 +316,9 @@ MIT License - feel free to use, modify, and distribute.
 
 ## 📞 Support
 
-- **Issues:** [GitHub Issues](https://github.com/yourusername/kinship-voice-companion/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/yourusername/kinship-voice-companion/discussions)
-- **Email:** support@kinship.example.com
+- **Issues:** [GitHub Issues](https://github.com/yourusername/talk-to-me/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/yourusername/talk-to-me/discussions)
+- **Email:** support@talktome.example.com
 
 ## 🗺️ Roadmap
 
