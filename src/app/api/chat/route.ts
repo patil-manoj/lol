@@ -28,6 +28,16 @@ Remember: Your goal is to help them feel heard, valued, and less alone. Be prese
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if API key is configured
+    if (!process.env.GROQ_API_KEY) {
+      return NextResponse.json(
+        {
+          error:
+            "Groq API key not configured. Please add GROQ_API_KEY to your .env file.",
+        },
+        { status: 500 }
+      );
+    }
     const { messages } = await request.json();
 
     if (!messages || !Array.isArray(messages)) {

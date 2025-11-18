@@ -111,23 +111,43 @@ export default function TextToSpeech({
 }
 
 // Custom hook for TTS
-export function useTextToSpeech() {
+export function useTextToSpeech(voiceIndex: number = 0) {
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
 
-  const speak = useCallback((text: string) => {
-    window.speechSynthesis.cancel();
+  // Load voices
+  useEffect(() => {
+    const loadVoices = () => {
+      const availableVoices = window.speechSynthesis.getVoices();
+      setVoices(availableVoices);
+    };
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.pitch = 1.0;
-    utterance.rate = 0.9;
-    utterance.volume = 1.0;
-
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => setIsSpeaking(false);
-    utterance.onerror = () => setIsSpeaking(false);
-
-    window.speechSynthesis.speak(utterance);
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
   }, []);
+
+  const speak = useCallback(
+    (text: string) => {
+      window.speechSynthesis.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.pitch = 1.0;
+      utterance.rate = 0.9;
+      utterance.volume = 1.0;
+
+      // Use selected voice
+      if (voices[voiceIndex]) {
+        utterance.voice = voices[voiceIndex];
+      }
+
+      utterance.onstart = () => setIsSpeaking(true);
+      utterance.onend = () => setIsSpeaking(false);
+      utterance.onerror = () => setIsSpeaking(false);
+
+      window.speechSynthesis.speak(utterance);
+    },
+    [voices, voiceIndex]
+  );
 
   const stop = useCallback(() => {
     window.speechSynthesis.cancel();

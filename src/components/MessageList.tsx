@@ -21,11 +21,11 @@ export default function MessageList({ messages }: MessageListProps) {
     return (
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="text-center max-w-md">
-          <Bot className="w-16 h-16 text-warm-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+          <Bot className="w-16 h-16 text-warm-400 dark:text-warm-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-2">
             Welcome to Talk to Me
           </h2>
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-300">
             I'm here to listen and support you. Click the microphone below to
             start talking, or type a message. This is a safe, judgment-free
             space.
@@ -69,7 +69,7 @@ export default function MessageList({ messages }: MessageListProps) {
               ${
                 message.role === "user"
                   ? "bg-primary-500 text-white rounded-tr-sm"
-                  : "bg-white text-gray-800 border border-gray-200 rounded-tl-sm"
+                  : "bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-gray-600 rounded-tl-sm"
               }
             `}
           >
@@ -80,7 +80,11 @@ export default function MessageList({ messages }: MessageListProps) {
             <div
               className={`
               flex items-center gap-2 mt-2 text-xs
-              ${message.role === "user" ? "text-primary-100" : "text-gray-500"}
+              ${
+                message.role === "user"
+                  ? "text-primary-100"
+                  : "text-gray-500 dark:text-gray-400"
+              }
             `}
             >
               <span>

@@ -124,11 +124,11 @@ export default function VoiceRecorder({
 
   if (!isSupported) {
     return (
-      <div className="text-center p-4 bg-red-50 border border-red-200 rounded-lg">
-        <p className="text-red-700 font-medium">
+      <div className="text-center p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+        <p className="text-red-700 dark:text-red-300 font-medium">
           Voice recognition is not supported in your browser.
         </p>
-        <p className="text-red-600 text-sm mt-2">
+        <p className="text-red-600 dark:text-red-400 text-sm mt-2">
           Please use Google Chrome or Microsoft Edge for the best experience.
         </p>
       </div>
@@ -178,7 +178,7 @@ export default function VoiceRecorder({
       </button>
 
       {/* Status text */}
-      <p className="text-sm text-gray-600">
+      <p className="text-sm text-gray-600 dark:text-gray-300">
         {isListening ? (
           <span className="flex items-center gap-2">
             <Volume2 className="w-4 h-4 text-primary-500" />
@@ -186,7 +186,7 @@ export default function VoiceRecorder({
           </span>
         ) : (
           <span className="flex items-center gap-2">
-            <VolumeX className="w-4 h-4 text-gray-400" />
+            <VolumeX className="w-4 h-4 text-gray-400 dark:text-gray-500" />
             Click to start talking
           </span>
         )}
@@ -194,7 +194,7 @@ export default function VoiceRecorder({
 
       {/* Interim transcript */}
       {interimTranscript && (
-        <div className="text-sm text-gray-500 italic max-w-md text-center">
+        <div className="text-sm text-gray-500 dark:text-gray-400 italic max-w-md text-center">
           {interimTranscript}
         </div>
       )}
