@@ -27,20 +27,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              try {
-                if (localStorage.getItem('darkMode') === 'true') {
-                  document.documentElement.classList.add('dark');
-                }
-              } catch (e) {}
-            `,
-          }}
-        />
-      </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased bg-gray-50 dark:bg-gray-900">
+        {children}
+      </body>
     </html>
   );
 }

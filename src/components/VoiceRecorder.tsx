@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { Mic, MicOff, Volume2, VolumeX } from "lucide-react";
+import { Mic, MicOff, Volume2, VolumeX, AlertCircle } from "lucide-react";
 
 interface VoiceRecorderProps {
   onTranscript: (text: string, isFinal: boolean) => void;
@@ -124,11 +124,12 @@ export default function VoiceRecorder({
 
   if (!isSupported) {
     return (
-      <div className="text-center p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-        <p className="text-red-700 dark:text-red-300 font-medium">
+      <div className="text-center p-6 glass-strong border border-red-300 dark:border-red-700 rounded-2xl shadow-premium animate-fadeInUp">
+        <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-3" />
+        <p className="text-red-700 dark:text-red-300 font-semibold text-lg mb-2">
           Voice recognition is not supported in your browser.
         </p>
-        <p className="text-red-600 dark:text-red-400 text-sm mt-2">
+        <p className="text-red-600 dark:text-red-400 text-sm">
           Please use Google Chrome or Microsoft Edge for the best experience.
         </p>
       </div>
@@ -136,14 +137,14 @@ export default function VoiceRecorder({
   }
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div className="flex flex-col items-center gap-6">
       {/* Voice visualizer */}
       {isListening && (
-        <div className="flex items-center gap-1 h-12">
-          {[...Array(5)].map((_, i) => (
+        <div className="flex items-center justify-center gap-2 h-16 animate-fadeInUp">
+          {[...Array(7)].map((_, i) => (
             <div
               key={i}
-              className="w-1 bg-primary-500 rounded-full animate-wave"
+              className="w-2 bg-gradient-to-t from-primary-500 to-accent-500 rounded-full animate-wave shadow-glow"
               style={{
                 animationDelay: `${i * 0.1}s`,
                 height: "100%",
@@ -153,49 +154,60 @@ export default function VoiceRecorder({
         </div>
       )}
 
-      {/* Microphone button */}
-      <button
-        onClick={toggleListening}
-        className={`
-          relative p-6 rounded-full transition-all duration-300 transform hover:scale-105
-          ${
-            isListening
-              ? "bg-red-500 hover:bg-red-600 shadow-lg shadow-red-200"
-              : "bg-primary-500 hover:bg-primary-600 shadow-lg shadow-primary-200"
-          }
-        `}
-        aria-label={isListening ? "Stop listening" : "Start listening"}
-      >
-        {isListening ? (
-          <MicOff className="w-8 h-8 text-white" />
-        ) : (
-          <Mic className="w-8 h-8 text-white" />
-        )}
-
+      {/* Premium Microphone button */}
+      <div className="relative group">
         {isListening && (
-          <span className="absolute inset-0 rounded-full bg-red-500 animate-ping opacity-75" />
+          <>
+            <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-pink-500 rounded-full blur-2xl opacity-50 animate-pulse-slow" />
+            <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-pink-500 rounded-full animate-ping opacity-30" />
+          </>
         )}
-      </button>
+        {!isListening && (
+          <div className="absolute inset-0 bg-gradient-to-r from-primary-500 to-accent-500 rounded-full blur-2xl opacity-40 group-hover:opacity-60 transition-opacity duration-300" />
+        )}
+        <button
+          onClick={toggleListening}
+          className={`
+            relative p-8 rounded-full transition-all duration-500 transform hover:scale-110 shadow-glow
+            ${
+              isListening
+                ? "bg-gradient-to-br from-red-500 to-pink-500 animate-glow"
+                : "bg-gradient-to-br from-primary-500 to-accent-500 hover:shadow-glow-lg"
+            }
+          `}
+          aria-label={isListening ? "Stop listening" : "Start listening"}
+        >
+          {isListening ? (
+            <MicOff className="w-10 h-10 text-white drop-shadow-lg" />
+          ) : (
+            <Mic className="w-10 h-10 text-white drop-shadow-lg" />
+          )}
+        </button>
+      </div>
 
       {/* Status text */}
-      <p className="text-sm text-gray-600 dark:text-gray-300">
-        {isListening ? (
-          <span className="flex items-center gap-2">
-            <Volume2 className="w-4 h-4 text-primary-500" />
-            Listening... speak now
-          </span>
-        ) : (
-          <span className="flex items-center gap-2">
-            <VolumeX className="w-4 h-4 text-gray-400 dark:text-gray-500" />
-            Click to start talking
-          </span>
-        )}
-      </p>
+      <div className="glass rounded-2xl px-6 py-3 shadow-premium">
+        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+          {isListening ? (
+            <span className="flex items-center gap-2">
+              <Volume2 className="w-5 h-5 text-primary-500 animate-pulse" />
+              Listening... speak now
+            </span>
+          ) : (
+            <span className="flex items-center gap-2">
+              <VolumeX className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+              Click to start talking
+            </span>
+          )}
+        </p>
+      </div>
 
       {/* Interim transcript */}
       {interimTranscript && (
-        <div className="text-sm text-gray-500 dark:text-gray-400 italic max-w-md text-center">
-          {interimTranscript}
+        <div className="glass-strong rounded-2xl px-6 py-4 max-w-md text-center shadow-premium animate-fadeInUp">
+          <p className="text-sm text-gray-600 dark:text-gray-300 italic font-medium">
+            "{interimTranscript}"
+          </p>
         </div>
       )}
     </div>
