@@ -1,0 +1,20 @@
+{
+  "name": "talk-to-me-backend",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Backend API for Talk to Me - Voice-based AI companion",
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start -p 3001"
+  },
+  "dependencies": {
+    "next": "14.2.15",
+    "@supabase/supabase-js": "^2.45.4",
+    "groq-sdk": "^0.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "typescript": "^5"
+  }
+}

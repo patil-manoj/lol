@@ -1,10 +1,131 @@
 # 🎙️ Talk to Me - Voice-Based AI Companion
 
-A free, voice-first AI companion designed to provide emotional support and meaningful conversations for people experiencing loneliness. Built with Next.js, Web Speech API, and Groq's free LLM API.
+A free, voice-first AI companion designed to provide emotional support and meaningful conversations for people experiencing loneliness. Built with Next.js, React Native, Web Speech API, and Groq's free LLM API.
 
 ![Talk to Me Banner](https://img.shields.io/badge/Built%20with-Next.js-black?style=for-the-badge&logo=next.js)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 ![Free](https://img.shields.io/badge/Cost-$0%2Fmonth-green?style=for-the-badge)
+
+## 📁 Project Structure
+
+This is a monorepo containing three main applications:
+
+```
+talk-to-me/
+├── backend/          # API server and backend services
+├── frontend/         # Next.js web application
+├── mobile/           # React Native mobile app
+├── package.json      # Root package with scripts for all apps
+├── tsconfig.json     # Root TypeScript configuration
+└── README.md         # This file
+```
+
+### 📦 Backend (`/backend`)
+
+Backend API server with Groq LLM integration and Supabase database.
+
+- **Technology:** Next.js API routes
+- **Features:** Chat API, Groq LLM integration, database schema
+- **Port:** 3001 (default)
+- [Backend README](./backend/README.md)
+
+### 🌐 Frontend (`/frontend`)
+
+Web application with voice interaction and chat interface.
+
+- **Technology:** Next.js 14, React, Tailwind CSS
+- **Features:** Voice input/output, emotion analysis, chat UI
+- **Port:** 3000 (default)
+- [Frontend README](./frontend/README.md)
+
+### 📱 Mobile (`/mobile`)
+
+React Native mobile application for iOS and Android.
+
+- **Technology:** React Native, Expo
+- **Features:** Voice recording, text-to-speech, emotion tracking
+- **Platform:** iOS & Android
+- [Mobile README](./mobile/README.md)
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- **Node.js 18+** installed
+- **npm** or **yarn**
+- **Groq API key** (free tier - 14,400 requests/day)
+- **Supabase account** (optional, for data persistence)
+
+### Installation
+
+1. **Clone the repository**
+
+```bash
+git clone https://github.com/yourusername/talk-to-me.git
+cd talk-to-me
+```
+
+2. **Install all dependencies**
+
+```bash
+npm run install:all
+```
+
+This will install dependencies for backend, frontend, and mobile apps.
+
+### Running the Applications
+
+#### Run Frontend (Web App)
+
+```bash
+npm run dev:frontend
+```
+
+Visit [http://localhost:3000](http://localhost:3000)
+
+#### Run Backend (API Server)
+
+```bash
+npm run dev:backend
+```
+
+API available at [http://localhost:3001/api](http://localhost:3001/api)
+
+#### Run Mobile App
+
+```bash
+npm run dev:mobile
+```
+
+Follow Expo instructions in the terminal to run on iOS/Android.
+
+### Environment Variables
+
+Each application needs its own environment variables:
+
+**Backend (`.env`):**
+
+```env
+GROQ_API_KEY=your_groq_api_key_here
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url_here
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+```
+
+**Frontend (`.env.local`):**
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3001/api
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url_here
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+```
+
+**Mobile (`.env`):**
+
+```env
+API_URL=http://localhost:3001/api
+SUPABASE_URL=your_supabase_url_here
+SUPABASE_ANON_KEY=your_supabase_anon_key_here
+```
 
 ## ✨ Features
 
@@ -121,33 +242,60 @@ npm run dev
 
 ```
 talk-to-me/
-├── src/
-│   ├── app/
-│   │   ├── api/
-│   │   │   └── chat/
-│   │   │       └── route.ts          # Groq API integration
-│   │   ├── layout.tsx                # Root layout
-│   │   ├── page.tsx                  # Home page
-│   │   └── globals.css               # Global styles
-│   ├── components/
-│   │   ├── ChatInterface.tsx         # Main chat UI
-│   │   ├── MessageList.tsx           # Message display
-│   │   ├── VoiceRecorder.tsx         # Speech recognition
-│   │   └── TextToSpeech.tsx          # Voice synthesis
-│   ├── lib/
-│   │   ├── emotionAnalysis.ts        # Sentiment detection
-│   │   └── supabase.ts               # Database client
-│   └── types/
-│       └── index.ts                  # TypeScript types
-├── supabase/
-│   └── schema.sql                    # Database schema
-├── package.json
-├── tailwind.config.ts
-├── tsconfig.json
-└── README.md
+├── backend/          # API server and backend services
+├── frontend/         # Next.js web application
+├── mobile/           # React Native mobile app
+├── package.json      # Root package with scripts for all apps
+├── tsconfig.json     # Root TypeScript configuration
+└── README.md         # This file
 ```
 
-## 💡 How It Works
+## 💡 Development Workflow
+
+### Installing Dependencies
+
+```bash
+# Install all dependencies (backend + frontend + mobile)
+npm run install:all
+
+# Or install individually
+npm run install:frontend
+npm run install:backend
+npm run install:mobile
+```
+
+### Running Development Servers
+
+```bash
+# Run frontend only
+npm run dev:frontend
+
+# Run backend only
+npm run dev:backend
+
+# Run mobile app
+npm run dev:mobile
+```
+
+### Building for Production
+
+```bash
+# Build frontend
+npm run build:frontend
+
+# Build backend
+npm run build:backend
+```
+
+## 📚 Documentation
+
+- [Backend Documentation](./backend/README.md)
+- [Frontend Documentation](./frontend/README.md)
+- [Mobile App Documentation](./mobile/README.md)
+- [Setup Guide](./SETUP.md)
+- [Development Notes](./NOTES.md)
+
+## 🔑 Getting API Keys (100% Free)
 
 ### Voice Input Flow
 
@@ -201,27 +349,41 @@ const EMOTION_KEYWORDS = {
 
 ## 🚀 Deployment
 
-### Deploy to Vercel (Recommended)
+### Deploy Frontend to Vercel
 
 1. Push your code to GitHub
 2. Visit [vercel.com](https://vercel.com)
 3. Import your repository
-4. Add environment variables:
-   - `GROQ_API_KEY`
-   - `NEXT_PUBLIC_SUPABASE_URL` (if using)
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` (if using)
-5. Deploy!
+4. Set root directory to `frontend`
+5. Add environment variables
+6. Deploy!
 
-**Free Tier:**
+### Deploy Backend to Vercel/Railway
 
-- Unlimited bandwidth
-- Automatic HTTPS
-- Global CDN
-- $0/month for hobby projects
+1. Set root directory to `backend`
+2. Add environment variables
+3. Deploy!
 
-### Alternative: Railway, Render, Fly.io
+### Deploy Mobile App
 
-All offer free tiers suitable for this project. See their respective documentation.
+- **iOS:** Submit to App Store using Expo EAS
+- **Android:** Submit to Google Play using Expo EAS
+
+See [Expo documentation](https://docs.expo.dev/submit/introduction/) for details.
+
+## 🛠️ Tech Stack
+
+| Component      | Technology           | Purpose          |
+| -------------- | -------------------- | ---------------- |
+| Frontend       | Next.js 14 + React   | Web application  |
+| Mobile         | React Native + Expo  | Mobile apps      |
+| Backend        | Next.js API routes   | API server       |
+| Speech-to-Text | Web Speech API       | Voice input      |
+| Text-to-Speech | Web Speech Synthesis | Voice output     |
+| LLM            | Groq (Llama 3.3 70B) | AI responses     |
+| Database       | Supabase             | Data persistence |
+| Styling        | Tailwind CSS         | UI styling       |
+| State          | Zustand              | State management |
 
 ## 🔧 Troubleshooting
 
