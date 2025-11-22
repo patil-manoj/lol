@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
 
+// Initialize Groq client
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
 
-// System prompt for empathetic, therapeutic conversation
+// System prompt for empathetic conversation
 const SYSTEM_PROMPT = `You are Talk to Me, a warm, empathetic AI companion designed to provide emotional support and meaningful conversation to people experiencing loneliness.
 
 Your core principles:
@@ -26,54 +27,88 @@ Your conversation style:
 
 Remember: Your goal is to help them feel heard, valued, and less alone. Be present, be kind, be real.`;
 
+// Crisis keywords for detection
+const CRISIS_KEYWORDS = [
+  "suicide",
+  "kill myself",
+  "end my life",
+  "want to die",
+  "self-harm",
+  "hurt myself",
+  "no reason to live",
+];
+
+// Message interface
+interface Message {
+  role: "user" | "assistant" | "system";
+  content: string;
+}
+
+// Request body interface
+interface ChatRequest {
+  messages: Message[];
+}
+
 export async function POST(request: NextRequest) {
   try {
-    // Check if API key is configured
+    // Validate API key
     if (!process.env.GROQ_API_KEY) {
+      console.error("GROQ_API_KEY not configured");
       return NextResponse.json(
-        {
-          error:
-            "Groq API key not configured. Please add GROQ_API_KEY to your .env file.",
-        },
+        { error: "API configuration error. Please contact support." },
         { status: 500 }
       );
     }
-    const { messages } = await request.json();
 
-    if (!messages || !Array.isArray(messages)) {
+    // Parse and validate request body
+    let body: ChatRequest;
+    try {
+      body = await request.json();
+    } catch {
       return NextResponse.json(
-        { error: "Invalid messages format" },
+        { error: "Invalid JSON in request body" },
         { status: 400 }
       );
     }
 
-    // Check for crisis keywords
-    const lastMessage =
-      messages[messages.length - 1]?.content?.toLowerCase() || "";
-    const crisisKeywords = [
-      "suicide",
-      "kill myself",
-      "end my life",
-      "want to die",
-      "self-harm",
-      "hurt myself",
-      "no reason to live",
-    ];
+    const { messages } = body;
 
-    const isCrisis = crisisKeywords.some((keyword) =>
-      lastMessage.includes(keyword)
+    // Validate messages
+    if (!messages || !Array.isArray(messages) || messages.length === 0) {
+      return NextResponse.json(
+        { error: "Messages array is required and must not be empty" },
+        { status: 400 }
+      );
+    }
+
+    // Validate message structure
+    const invalidMessage = messages.find(
+      (msg) => !msg.role || !msg.content || typeof msg.content !== "string"
+    );
+    if (invalidMessage) {
+      return NextResponse.json(
+        { error: "Each message must have 'role' and 'content' properties" },
+        { status: 400 }
+      );
+    }
+
+    // Check for crisis keywords in last user message
+    const lastMessage = messages[messages.length - 1];
+    const lastMessageContent = lastMessage?.content?.toLowerCase() || "";
+    const isCrisis = CRISIS_KEYWORDS.some((keyword) =>
+      lastMessageContent.includes(keyword)
     );
 
     // Prepare messages for Groq
-    const groqMessages = [
+    const groqMessages: Message[] = [
       { role: "system", content: SYSTEM_PROMPT },
-      ...messages.map((msg: any) => ({
+      ...messages.map((msg) => ({
         role: msg.role,
         content: msg.content,
       })),
     ];
 
-    // If crisis detected, add crisis response guidance
+    // Add crisis response guidance if needed
     if (isCrisis) {
       groqMessages.push({
         role: "system",
@@ -82,49 +117,73 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Call Groq API with Llama 3.3 70B
+    // Call Groq API
     const chatCompletion = await groq.chat.completions.create({
       messages: groqMessages as any,
-      model: "llama-3.3-70b-versatile", // Free tier model
-      temperature: 0.8, // Balanced creativity and coherence
-      max_tokens: 300, // Keep responses concise
+      model: "llama-3.3-70b-versatile",
+      temperature: 0.8,
+      max_tokens: 300,
       top_p: 0.9,
       stream: false,
     });
 
+    // Extract response
     const assistantMessage =
       chatCompletion.choices[0]?.message?.content ||
       "I'm here for you. Could you tell me more about what's on your mind?";
 
+    // Return response
     return NextResponse.json({
       message: assistantMessage,
       isCrisis,
       model: "llama-3.3-70b-versatile",
     });
   } catch (error: any) {
-    console.error("Groq API error:", error);
+    console.error("Chat API error:", error);
 
-    // Handle specific Groq errors
-    if (error.status === 401) {
+    // Handle Groq-specific errors
+    if (error?.status === 401) {
       return NextResponse.json(
-        { error: "Invalid API key. Please check your Groq API configuration." },
+        { error: "Invalid API key configuration" },
         { status: 401 }
       );
     }
 
-    if (error.status === 429) {
+    if (error?.status === 429) {
       return NextResponse.json(
         { error: "Rate limit exceeded. Please try again in a moment." },
         { status: 429 }
       );
     }
 
+    if (error?.status === 400) {
+      return NextResponse.json(
+        { error: "Invalid request to AI service" },
+        { status: 400 }
+      );
+    }
+
+    // Generic error
     return NextResponse.json(
       {
         error: "Failed to generate response. Please try again.",
-        details: error.message,
+        ...(process.env.NODE_ENV === "development" && {
+          details: error.message,
+        }),
       },
       { status: 500 }
     );
   }
+}
+
+// Add OPTIONS handler for CORS preflight
+export async function OPTIONS(request: NextRequest) {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    },
+  });
 }

@@ -1,14 +1,162 @@
 # 🎙️ Talk to Me - Voice-Based AI Companion
 
-A free, voice-first AI companion designed to provide emotional support and meaningful conversations for people experiencing loneliness. Built with Next.js, React Native, Web Speech API, and Groq's free LLM API.
+A voice-first AI companion providing emotional support through meaningful conversations. Built with Next.js, React Native, and Groq's free LLM API.
 
 ![Talk to Me Banner](https://img.shields.io/badge/Built%20with-Next.js-black?style=for-the-badge&logo=next.js)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 ![Free](https://img.shields.io/badge/Cost-$0%2Fmonth-green?style=for-the-badge)
 
+---
+
 ## 📁 Project Structure
 
-This is a monorepo containing three main applications:
+This monorepo contains **3 independent applications**:
+
+```
+talk-to-me/
+├── backend/          # 🔧 API Server (Next.js API Routes + Groq)
+├── frontend/         # 🌐 Web App (Next.js + React)
+└── mobile/           # 📱 Mobile App (React Native + Expo)
+```
+
+Each application runs independently and connects through API calls.
+
+---
+
+## 🚀 Quick Start
+
+**See [QUICK_START.md](./QUICK_START.md) for detailed setup instructions.**
+
+### TL;DR
+
+```bash
+# 1. Backend
+cd backend
+npm install
+cp .env.example .env  # Add GROQ_API_KEY
+npm run dev           # http://localhost:3001
+
+# 2. Frontend
+cd frontend
+npm install
+cp .env.example .env.local  # Set NEXT_PUBLIC_API_URL
+npm run dev                  # http://localhost:3000
+
+# 3. Mobile
+cd mobile
+npm install
+# Edit .env with API_URL
+npm start
+```
+
+---
+
+## ✨ Features
+
+- 🎤 **Voice Input** - Web Speech API for natural conversations
+- 🔊 **Voice Output** - Text-to-speech responses
+- 🤖 **AI-Powered** - Groq's Llama 3.3 70B (free tier)
+- 😊 **Emotion Tracking** - Real-time sentiment analysis
+- 💬 **Chat Interface** - Beautiful, responsive UI
+- 🔒 **Privacy-First** - Optional data persistence
+- 📱 **Multi-Platform** - Web and mobile apps
+
+---
+
+## 🔑 API Keys (Free)
+
+### Groq (Required)
+
+1. Visit [console.groq.com](https://console.groq.com)
+2. Create free account
+3. Generate API key
+4. Free tier: 14,400 requests/day
+
+### Supabase (Optional)
+
+1. Visit [supabase.com](https://supabase.com)
+2. Create project
+3. Get URL and anon key
+4. Free tier: 500MB database
+
+---
+
+## 🌐 Deployment
+
+### Backend
+
+- **Vercel**: Deploy from `backend/` folder
+- **Railway/Render**: Point to `backend/` directory
+- Set `GROQ_API_KEY` environment variable
+
+### Frontend
+
+- **Vercel/Netlify**: Deploy from `frontend/` folder
+- Set `NEXT_PUBLIC_API_URL` to your backend URL
+
+### Mobile
+
+- **Expo EAS**: Build and publish to app stores
+- Configure `API_URL` in build settings
+
+---
+
+## 📚 Documentation
+
+- [Quick Start Guide](./QUICK_START.md) - Complete setup instructions
+- [Backend README](./backend/README.md) - API documentation
+- [Frontend README](./frontend/README.md) - Web app guide
+- [Mobile README](./mobile/README.md) - Mobile app guide
+
+---
+
+## 🛠️ Tech Stack
+
+| Component      | Technology           | Purpose          |
+| -------------- | -------------------- | ---------------- |
+| Backend        | Next.js API Routes   | API server       |
+| Frontend       | Next.js + React      | Web application  |
+| Mobile         | React Native + Expo  | iOS/Android apps |
+| AI             | Groq (Llama 3.3 70B) | Chat responses   |
+| Database       | Supabase (optional)  | Data persistence |
+| Speech-to-Text | Web Speech API       | Voice input      |
+| Text-to-Speech | Web Speech Synthesis | Voice output     |
+
+---
+
+## 🎯 Architecture
+
+```
+┌─────────────┐
+│  Mobile App │─────┐
+└─────────────┘     │
+                    ├──► Backend API ──► Groq LLM
+┌─────────────┐     │      (Port 3001)
+│  Frontend   │─────┘
+└─────────────┘
+```
+
+- **Backend**: Handles AI chat, database, business logic
+- **Frontend/Mobile**: UI, voice input/output, emotion display
+
+---
+
+## 📄 License
+
+MIT License - Free to use, modify, and distribute
+
+---
+
+## 🙏 Acknowledgments
+
+- [Groq](https://groq.com) - Free LLM API
+- [Supabase](https://supabase.com) - Free database hosting
+- [Vercel](https://vercel.com) - Free deployment
+- [Expo](https://expo.dev) - Mobile development platform
+
+---
+
+**Made with ❤️ for people who need someone to talk to**
 
 ```
 talk-to-me/
