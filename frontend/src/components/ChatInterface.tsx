@@ -178,6 +178,10 @@ export default function ChatInterface() {
 
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/chat";
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
+        
         const response = await fetch(apiUrl, {
           method: "POST",
           headers: {
@@ -189,11 +193,14 @@ export default function ChatInterface() {
               content: m.content,
             })),
           }),
+          signal: controller.signal,
         });
+        
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to get response");
+          const errorData = await response.json().catch(() => ({ error: 'Server error' }));
+          throw new Error(errorData.error || `Server error: ${response.status}`);
         }
 
         const data = await response.json();
@@ -221,19 +228,27 @@ export default function ChatInterface() {
         }
       } catch (err: any) {
         console.error("Chat error:", err);
-        const errorMessage =
-          err.message || "Failed to send message. Please try again.";
+        
+        let errorMessage = "Failed to send message. Please try again.";
+        let assistantErrorMessage = "";
+        
+        if (err.name === 'AbortError') {
+          errorMessage = "Request timed out. Please try again.";
+          assistantErrorMessage = "The request took too long. Please check your connection and try again.";
+        } else if (err.message?.includes('fetch') || err.message?.includes('network') || err.message?.includes('Failed to fetch')) {
+          errorMessage = "Network error. Please check your connection.";
+          assistantErrorMessage = "I'm having trouble connecting. Please check your internet connection and ensure the backend server is running.";
+        } else {
+          errorMessage = err.message || errorMessage;
+        }
+        
         setError(errorMessage);
 
-        if (
-          errorMessage.includes("Network error") ||
-          errorMessage.includes("connection")
-        ) {
+        if (assistantErrorMessage) {
           const errorHelpMessage: Message = {
             id: (Date.now() + 2).toString(),
             role: "assistant",
-            content:
-              "I'm having trouble connecting to my service right now. This might be a temporary network issue. Please check your internet connection and try again in a moment.",
+            content: assistantErrorMessage,
             timestamp: new Date(),
           };
           setMessages((prev) => [...prev, errorHelpMessage]);

@@ -1,8 +1,8 @@
 {
-  "name": "talk-to-me",
+  "name": "talk-to-me-frontend",
   "version": "0.1.0",
   "private": true,
-  "description": "Talk to Me - Voice-based AI companion for emotional support and loneliness",
+  "description": "Frontend for Talk to Me - Voice-based AI companion",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -13,8 +13,6 @@
     "next": "14.2.15",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "@supabase/supabase-js": "^2.45.4",
-    "zustand": "^4.5.5",
     "date-fns": "^3.6.0",
     "lucide-react": "^0.446.0",
     "clsx": "^2.1.1"
@@ -29,5 +27,9 @@
     "autoprefixer": "^10.0.1",
     "eslint": "^8",
     "eslint-config-next": "14.2.15"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   }
 }
