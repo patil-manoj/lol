@@ -37,12 +37,15 @@ export const ChatScreen: React.FC = () => {
   const handleSendMessage = useCallback(
     async (content?: string) => {
       const messageText = (content || inputText).trim();
-      
+
       // Validate input
       if (!messageText || isLoading) return;
-      
+
       if (messageText.length > 500) {
-        Alert.alert("Message Too Long", "Please keep your message under 500 characters.");
+        Alert.alert(
+          "Message Too Long",
+          "Please keep your message under 500 characters."
+        );
         return;
       }
 
@@ -96,21 +99,21 @@ export const ChatScreen: React.FC = () => {
         }
       } catch (error: any) {
         console.error("Chat error:", error);
-        
+
         // Show user-friendly error
         const errorMessage = error.message || "Failed to send message";
-        Alert.alert(
-          "Connection Error",
-          errorMessage,
-          [{ text: "OK" }]
-        );
-        
+        Alert.alert("Connection Error", errorMessage, [{ text: "OK" }]);
+
         // Add helpful error message to chat
-        if (errorMessage.includes('connect') || errorMessage.includes('network')) {
+        if (
+          errorMessage.includes("connect") ||
+          errorMessage.includes("network")
+        ) {
           const errorHelpMessage: Message = {
             id: (Date.now() + 2).toString(),
             role: "assistant",
-            content: "I'm having trouble connecting to the server. Please check your internet connection and make sure the backend is running.",
+            content:
+              "I'm having trouble connecting to the server. Please check your internet connection and make sure the backend is running.",
             timestamp: new Date(),
           };
           setMessages((prev) => [...prev, errorHelpMessage]);

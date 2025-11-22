@@ -178,10 +178,10 @@ export default function ChatInterface() {
 
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api/chat";
-        
+
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 30000);
-        
+
         const response = await fetch(apiUrl, {
           method: "POST",
           headers: {
@@ -195,12 +195,16 @@ export default function ChatInterface() {
           }),
           signal: controller.signal,
         });
-        
+
         clearTimeout(timeoutId);
 
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({ error: 'Server error' }));
-          throw new Error(errorData.error || `Server error: ${response.status}`);
+          const errorData = await response
+            .json()
+            .catch(() => ({ error: "Server error" }));
+          throw new Error(
+            errorData.error || `Server error: ${response.status}`
+          );
         }
 
         const data = await response.json();
@@ -228,20 +232,26 @@ export default function ChatInterface() {
         }
       } catch (err: any) {
         console.error("Chat error:", err);
-        
+
         let errorMessage = "Failed to send message. Please try again.";
         let assistantErrorMessage = "";
-        
-        if (err.name === 'AbortError') {
+
+        if (err.name === "AbortError") {
           errorMessage = "Request timed out. Please try again.";
-          assistantErrorMessage = "The request took too long. Please check your connection and try again.";
-        } else if (err.message?.includes('fetch') || err.message?.includes('network') || err.message?.includes('Failed to fetch')) {
+          assistantErrorMessage =
+            "The request took too long. Please check your connection and try again.";
+        } else if (
+          err.message?.includes("fetch") ||
+          err.message?.includes("network") ||
+          err.message?.includes("Failed to fetch")
+        ) {
           errorMessage = "Network error. Please check your connection.";
-          assistantErrorMessage = "I'm having trouble connecting. Please check your internet connection and ensure the backend server is running.";
+          assistantErrorMessage =
+            "I'm having trouble connecting. Please check your internet connection and ensure the backend server is running.";
         } else {
           errorMessage = err.message || errorMessage;
         }
-        
+
         setError(errorMessage);
 
         if (assistantErrorMessage) {

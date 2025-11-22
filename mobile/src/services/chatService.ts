@@ -35,7 +35,9 @@ export class ChatService {
 
     const lastMessage = messages[messages.length - 1];
     if (lastMessage.content.length > MAX_MESSAGE_LENGTH) {
-      throw new Error(`Message too long. Maximum ${MAX_MESSAGE_LENGTH} characters.`);
+      throw new Error(
+        `Message too long. Maximum ${MAX_MESSAGE_LENGTH} characters.`
+      );
     }
 
     try {
@@ -75,12 +77,15 @@ export class ChatService {
       console.error("Chat API error:", error);
 
       // Timeout error
-      if (error.code === 'ECONNABORTED') {
+      if (error.code === "ECONNABORTED") {
         throw new Error("Request timed out. Please try again.");
       }
 
       // Network error
-      if (error.message?.includes('Network Error') || error.code === 'ERR_NETWORK') {
+      if (
+        error.message?.includes("Network Error") ||
+        error.code === "ERR_NETWORK"
+      ) {
         throw new Error(
           "Cannot connect to server. Please check your internet connection and ensure the backend is running."
         );
@@ -88,12 +93,15 @@ export class ChatService {
 
       // Server error with response
       if (axios.isAxiosError(error) && error.response) {
-        const message = error.response.data?.error || "Failed to get response from server";
+        const message =
+          error.response.data?.error || "Failed to get response from server";
         throw new Error(message);
       }
 
       // Generic error
-      throw new Error(error.message || "Failed to send message. Please try again.");
+      throw new Error(
+        error.message || "Failed to send message. Please try again."
+      );
     }
   }
 }
