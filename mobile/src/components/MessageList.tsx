@@ -6,11 +6,16 @@ import { Ionicons } from "@expo/vector-icons";
 
 interface MessageListProps {
   messages: Message[];
+  darkMode?: boolean;
 }
 
 const { width } = Dimensions.get("window");
 
-export const MessageList: React.FC<MessageListProps> = ({ messages }) => {
+export const MessageList: React.FC<MessageListProps> = ({
+  messages,
+  darkMode = false,
+}) => {
+  const theme = darkMode ? darkTheme : lightTheme;
   const scrollViewRef = React.useRef<ScrollView>(null);
 
   React.useEffect(() => {
@@ -20,12 +25,18 @@ export const MessageList: React.FC<MessageListProps> = ({ messages }) => {
 
   if (messages.length === 0) {
     return (
-      <View style={styles.emptyContainer}>
+      <View
+        style={[styles.emptyContainer, { backgroundColor: theme.background }]}
+      >
         <View style={styles.avatarLarge}>
-          <Ionicons name="planet-outline" size={48} color="#fff" />
+          <Ionicons name="chatbubble-ellipses" size={48} color="#fff" />
         </View>
-        <Text style={styles.greeting}>Hi, I am Elena.</Text>
-        <Text style={styles.subGreeting}>How can I help you today?</Text>
+        <Text style={[styles.greeting, { color: theme.text }]}>
+          Hi, I am Elena.
+        </Text>
+        <Text style={[styles.subGreeting, { color: theme.textSecondary }]}>
+          How can I help you today?
+        </Text>
 
         <View style={styles.suggestionsContainer}>
           {[
@@ -36,8 +47,15 @@ export const MessageList: React.FC<MessageListProps> = ({ messages }) => {
             "Random fun",
             "Today's Weather",
           ].map((suggestion, index) => (
-            <View key={index} style={styles.suggestionChip}>
-              <Text style={styles.suggestionText}>{suggestion}</Text>
+            <View
+              key={index}
+              style={[styles.suggestionChip, { borderColor: theme.border }]}
+            >
+              <Text
+                style={[styles.suggestionText, { color: theme.textSecondary }]}
+              >
+                {suggestion}
+              </Text>
             </View>
           ))}
         </View>
@@ -48,7 +66,7 @@ export const MessageList: React.FC<MessageListProps> = ({ messages }) => {
   return (
     <ScrollView
       ref={scrollViewRef}
-      style={styles.scrollView}
+      style={[styles.scrollView, { backgroundColor: theme.background }]}
       contentContainerStyle={styles.scrollContent}
       showsVerticalScrollIndicator={false}
     >
@@ -84,18 +102,20 @@ export const MessageList: React.FC<MessageListProps> = ({ messages }) => {
               style={[
                 styles.messageBubble,
                 message.role === "user"
-                  ? styles.userBubble
-                  : styles.assistantBubble,
+                  ? [
+                      styles.userBubble,
+                      { backgroundColor: darkMode ? "#374151" : "#F3F4F6" },
+                    ]
+                  : [
+                      styles.assistantBubble,
+                      {
+                        backgroundColor: theme.cardBackground,
+                        borderColor: theme.border,
+                      },
+                    ],
               ]}
             >
-              <Text
-                style={[
-                  styles.messageText,
-                  message.role === "user"
-                    ? styles.userText
-                    : styles.assistantText,
-                ]}
-              >
+              <Text style={[styles.messageText, { color: theme.text }]}>
                 {message.content}
               </Text>
             </View>
@@ -104,6 +124,7 @@ export const MessageList: React.FC<MessageListProps> = ({ messages }) => {
             <Text
               style={[
                 styles.timestamp,
+                { color: theme.textSecondary },
                 message.role === "user"
                   ? styles.userTimestamp
                   : styles.assistantTimestamp,
@@ -117,6 +138,22 @@ export const MessageList: React.FC<MessageListProps> = ({ messages }) => {
       ))}
     </ScrollView>
   );
+};
+
+const lightTheme = {
+  background: "#FFFFFF",
+  cardBackground: "#FFFFFF",
+  text: "#111827",
+  textSecondary: "#6B7280",
+  border: "#E5E7EB",
+};
+
+const darkTheme = {
+  background: "#111827",
+  cardBackground: "#1F2937",
+  text: "#F9FAFB",
+  textSecondary: "#9CA3AF",
+  border: "#374151",
 };
 
 const styles = StyleSheet.create({
@@ -138,13 +175,11 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#111827",
     marginBottom: 8,
   },
   subGreeting: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#374151",
     marginBottom: 24,
   },
   suggestionsContainer: {
@@ -159,13 +194,11 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 20,
     borderWidth: 2,
-    borderColor: "#D1D5DB",
     backgroundColor: "transparent",
   },
   suggestionText: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#4B5563",
   },
   scrollView: {
     flex: 1,
@@ -207,28 +240,18 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   userBubble: {
-    backgroundColor: "#F3F4F6",
     alignSelf: "flex-end",
   },
   assistantBubble: {
-    backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: "#E5E7EB",
     alignSelf: "flex-start",
   },
   messageText: {
     fontSize: 15,
     lineHeight: 22,
   },
-  userText: {
-    color: "#111827",
-  },
-  assistantText: {
-    color: "#111827",
-  },
   timestamp: {
     fontSize: 11,
-    color: "#9CA3AF",
     marginTop: 4,
   },
   userTimestamp: {

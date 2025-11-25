@@ -18,7 +18,8 @@
       "infoPlist": {
         "NSMicrophoneUsageDescription": "This app needs microphone access for voice input to communicate with the AI companion.",
         "NSCameraUsageDescription": "This app may use camera for future features.",
-        "NSPhotoLibraryUsageDescription": "This app may access photos for future features."
+        "NSPhotoLibraryUsageDescription": "This app may access photos for future features.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -36,6 +37,11 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "f11c8137-f2fd-415c-99aa-634f89bbbce3"
+      }
     }
   }
 }
