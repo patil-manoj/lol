@@ -14,7 +14,12 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.talktome.mobile"
+      "bundleIdentifier": "com.talktome.mobile",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "This app needs microphone access for voice input to communicate with the AI companion.",
+        "NSCameraUsageDescription": "This app may use camera for future features.",
+        "NSPhotoLibraryUsageDescription": "This app may access photos for future features."
+      }
     },
     "android": {
       "adaptiveIcon": {

@@ -62,9 +62,10 @@ export class ChatService {
 
       // Handle non-2xx responses
       if (response.status >= 400) {
-        throw new Error(
-          response.data?.error || `Server error: ${response.status}`
-        );
+        // response.data is typed as ChatResponse, but error payloads may differ.
+        // Use a safe cast to access potential error property without TS complaint.
+        const err = (response.data as any)?.error || `Server error: ${response.status}`;
+        throw new Error(err);
       }
 
       // Validate response
