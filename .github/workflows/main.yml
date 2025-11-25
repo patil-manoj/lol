@@ -7,12 +7,10 @@ on:
     paths:
       - "mobile/**"
   workflow_dispatch:
-  release:
-    types: [created]
 
 jobs:
   build:
-    name: Build APK
+    name: Build and Release APK
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -34,7 +32,11 @@ jobs:
         run: npm install -g eas-cli
 
       - name: Build Android APK
-        run: eas build --platform android --profile production --non-interactive --no-wait
+        id: build
+        run: |
+          BUILD_URL=$(eas build --platform android --profile production --non-interactive --json | jq -r '.[0].id')
+          echo "build_id=$BUILD_URL" >> $GITHUB_OUTPUT
+          echo "Build ID: $BUILD_URL"
         env:
           EAS_NO_VCS: 1
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
@@ -42,11 +44,70 @@ jobs:
 
       - name: Wait for build to complete
         run: |
-          echo "Build started! Check your build status at:"
-          echo "https://expo.dev/accounts/${{ github.repository_owner }}/projects/talk-to-me-mobile/builds"
+          echo "Waiting for build to complete..."
+          eas build:view ${{ steps.build.outputs.build_id }} --json
 
-      - name: Download APK (if build completes)
+          # Wait up to 30 minutes for build
+          for i in {1..60}; do
+            STATUS=$(eas build:view ${{ steps.build.outputs.build_id }} --json | jq -r '.status')
+            echo "Build status: $STATUS"
+            
+            if [ "$STATUS" = "finished" ]; then
+              echo "Build completed successfully!"
+              break
+            elif [ "$STATUS" = "errored" ] || [ "$STATUS" = "canceled" ]; then
+              echo "Build failed with status: $STATUS"
+              exit 1
+            fi
+            
+            echo "Waiting... ($i/60)"
+            sleep 30
+          done
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Download APK
         run: |
-          # This step would download the APK once build is complete
-          # You'll need to manually download from Expo dashboard for now
-          echo "Once build completes, download APK from Expo dashboard"
+          APK_URL=$(eas build:view ${{ steps.build.outputs.build_id }} --json | jq -r '.artifacts.buildUrl')
+          echo "Downloading APK from: $APK_URL"
+          curl -L -o talk-to-me.apk "$APK_URL"
+          ls -lh talk-to-me.apk
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Get version from package.json
+        id: version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Talk to Me v${{ steps.version.outputs.version }}
+          body: |
+            ## 📱 Talk to Me - Voice AI Companion
+
+            ### What's New
+            - Latest build from Expo
+            - Bug fixes and improvements
+
+            ### Installation
+            1. Download `talk-to-me.apk` below
+            2. Enable "Install from unknown sources" on your Android device
+            3. Install the APK
+            4. Grant microphone permissions when prompted
+
+            ### Requirements
+            - Android 5.0 (Lollipop) or higher
+            - Internet connection
+            - Microphone access
+
+            **Backend URL:** ${{ secrets.EXPO_PUBLIC_API_URL }}
+          files: mobile/talk-to-me.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
