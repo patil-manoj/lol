@@ -26,8 +26,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: "npm"
-          cache-dependency-path: mobile/package-lock.json
 
       - name: Setup Expo
         uses: expo/expo-github-action@v8
@@ -37,7 +35,7 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build Android APK
         run: eas build --platform android --profile production --non-interactive --no-wait
@@ -54,3 +52,4 @@ jobs:
           # This step would download the APK once build is complete
           # You'll need to manually download from Expo dashboard for now
           echo "Once build completes, download APK from Expo dashboard"
+
