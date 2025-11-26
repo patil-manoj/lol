@@ -1,100 +1,132 @@
-import React from "react";
-import { View, Text, ScrollView, StyleSheet, Dimensions } from "react-native";
+import React, { useRef, useEffect } from "react";
+import { View, Text, StyleSheet, ScrollView, Dimensions } from "react-native";
 import { formatDistanceToNow } from "date-fns";
-import { Message } from "../types";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { Message } from "../types";
+import {
+  colors,
+  gradients,
+  spacing,
+  borderRadius,
+  typography,
+  shadows,
+} from "../theme/colors";
+import { useAuth } from "../context/AuthContext";
+
+const { width } = Dimensions.get("window");
 
 interface MessageListProps {
   messages: Message[];
   darkMode?: boolean;
 }
 
-const { width } = Dimensions.get("window");
-
 export const MessageList: React.FC<MessageListProps> = ({
   messages,
   darkMode = false,
 }) => {
-  const theme = darkMode ? darkTheme : lightTheme;
-  const scrollViewRef = React.useRef<ScrollView>(null);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const { user } = useAuth();
 
-  React.useEffect(() => {
+  useEffect(() => {
     // Auto-scroll to bottom when new messages arrive
     scrollViewRef.current?.scrollToEnd({ animated: true });
   }, [messages]);
 
   if (messages.length === 0) {
     return (
-      <View
-        style={[styles.emptyContainer, { backgroundColor: theme.background }]}
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.emptyContainer}
+        showsVerticalScrollIndicator={false}
       >
-        <View style={styles.avatarLarge}>
-          <Ionicons name="chatbubble-ellipses" size={48} color="#fff" />
+        {/* Hero Avatar */}
+        <View style={styles.emptyAvatarContainer}>
+          <LinearGradient
+            colors={gradients.heroBg}
+            style={styles.emptyAvatar}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+          >
+            <Ionicons name="sparkles" size={64} color={colors.sand[50]} />
+          </LinearGradient>
+          <View style={[styles.emptyBlob1, shadows.lg]} />
+          <View style={[styles.emptyBlob2, shadows.lg]} />
         </View>
-        <Text style={[styles.greeting, { color: theme.text }]}>
-          Hi, I am Elena.
+
+        {/* Welcome Text */}
+        <Text style={styles.emptyTitle}>
+          Hi{user ? `, ${user.name.split(" ")[0]}` : ""}, I'm Elena.
         </Text>
-        <Text style={[styles.subGreeting, { color: theme.textSecondary }]}>
-          How can I help you today?
+        <Text style={styles.emptySubtitle}>
+          {user?.preferences.allowPersonalization
+            ? "I'm learning about you to provide better support. Let's have a meaningful conversation."
+            : "Your personal voice companion, here to listen and support you."}
         </Text>
 
-        <View style={styles.suggestionsContainer}>
+        {/* Suggestion Chips */}
+        <View style={styles.suggestions}>
           {[
-            "Sing me a song",
-            "Restaurants nearby",
-            "Play a game",
-            "Sports news",
-            "Random fun",
-            "Today's Weather",
-          ].map((suggestion, index) => (
-            <View
-              key={index}
-              style={[styles.suggestionChip, { borderColor: theme.border }]}
-            >
-              <Text
-                style={[styles.suggestionText, { color: theme.textSecondary }]}
-              >
-                {suggestion}
+            { text: "Sing me a song", emoji: "🎵" },
+            { text: "Find restaurants", emoji: "🍽️" },
+            { text: "Play a game", emoji: "🎮" },
+            { text: "Sports news", emoji: "⚽" },
+            { text: "Random fun", emoji: "✨" },
+            { text: "Today's weather", emoji: "☀️" },
+          ].map((suggestion, i) => (
+            <View key={i} style={styles.suggestionChip}>
+              <Text style={styles.suggestionText}>
+                {suggestion.emoji} {suggestion.text}
               </Text>
             </View>
           ))}
         </View>
-      </View>
+
+        {/* Hint */}
+        <Text style={styles.emptyHint}>
+          Tap the microphone to start speaking or type your message below
+        </Text>
+      </ScrollView>
     );
   }
 
   return (
     <ScrollView
       ref={scrollViewRef}
-      style={[styles.scrollView, { backgroundColor: theme.background }]}
-      contentContainerStyle={styles.scrollContent}
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
       showsVerticalScrollIndicator={false}
     >
       {messages.map((message) => (
         <View
           key={message.id}
           style={[
-            styles.messageContainer,
-            message.role === "user"
-              ? styles.userMessageContainer
-              : styles.assistantMessageContainer,
+            styles.messageRow,
+            message.role === "user" && styles.userMessageRow,
           ]}
         >
           {/* Avatar */}
-          <View
+          <LinearGradient
+            colors={
+              message.role === "user"
+                ? gradients.olivePrimary
+                : gradients.terraPrimary
+            }
             style={[
               styles.avatar,
               message.role === "user"
-                ? styles.userAvatar
-                : styles.assistantAvatar,
+                ? styles.avatarUser
+                : styles.avatarAssistant,
             ]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
           >
             <Ionicons
-              name={message.role === "user" ? "person" : "planet-outline"}
+              name={message.role === "user" ? "person" : "chatbubble-ellipses"}
               size={20}
-              color="#fff"
+              color={colors.sand[50]}
             />
-          </View>
+          </LinearGradient>
 
           {/* Message Bubble */}
           <View style={styles.messageContent}>
@@ -102,37 +134,39 @@ export const MessageList: React.FC<MessageListProps> = ({
               style={[
                 styles.messageBubble,
                 message.role === "user"
-                  ? [
-                      styles.userBubble,
-                      { backgroundColor: darkMode ? "#374151" : "#F3F4F6" },
-                    ]
-                  : [
-                      styles.assistantBubble,
-                      {
-                        backgroundColor: theme.cardBackground,
-                        borderColor: theme.border,
-                      },
-                    ],
+                  ? styles.userBubble
+                  : styles.assistantBubble,
               ]}
             >
-              <Text style={[styles.messageText, { color: theme.text }]}>
-                {message.content}
-              </Text>
+              <Text style={styles.messageText}>{message.content}</Text>
             </View>
 
-            {/* Timestamp */}
-            <Text
+            {/* Metadata */}
+            <View
               style={[
-                styles.timestamp,
-                { color: theme.textSecondary },
-                message.role === "user"
-                  ? styles.userTimestamp
-                  : styles.assistantTimestamp,
+                styles.metadata,
+                message.role === "user" && styles.metadataUser,
               ]}
             >
-              {formatDistanceToNow(message.timestamp, { addSuffix: true })}
-              {message.emotion && ` • ${message.emotion}`}
-            </Text>
+              <Text style={styles.metadataText}>
+                {formatDistanceToNow(message.timestamp, {
+                  addSuffix: true,
+                }).toUpperCase()}
+              </Text>
+              {message.emotion && (
+                <>
+                  <View style={styles.metadataDot} />
+                  <Text
+                    style={[
+                      styles.metadataText,
+                      { textTransform: "capitalize" },
+                    ]}
+                  >
+                    {message.emotion}
+                  </Text>
+                </>
+              )}
+            </View>
           </View>
         </View>
       ))}
@@ -140,124 +174,168 @@ export const MessageList: React.FC<MessageListProps> = ({
   );
 };
 
-const lightTheme = {
-  background: "#FFFFFF",
-  cardBackground: "#FFFFFF",
-  text: "#111827",
-  textSecondary: "#6B7280",
-  border: "#E5E7EB",
-};
-
-const darkTheme = {
-  background: "#111827",
-  cardBackground: "#1F2937",
-  text: "#F9FAFB",
-  textSecondary: "#9CA3AF",
-  border: "#374151",
-};
-
 const styles = StyleSheet.create({
-  emptyContainer: {
+  container: {
     flex: 1,
+    backgroundColor: "transparent",
+  },
+  contentContainer: {
+    padding: spacing.lg,
+    gap: spacing.lg,
+  },
+  emptyContainer: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: spacing.lg,
+  },
+  emptyAvatarContainer: {
+    position: "relative",
+    marginBottom: spacing.xl,
+  },
+  emptyAvatar: {
+    width: 128,
+    height: 128,
+    borderRadius: 64,
     alignItems: "center",
     justifyContent: "center",
-    padding: 24,
+    ...shadows.xl,
   },
-  avatarLarge: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "#8B5CF6",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 24,
+  emptyBlob1: {
+    position: "absolute",
+    top: -spacing.sm,
+    right: -spacing.sm,
+    width: 48,
+    height: 48,
+    backgroundColor: colors.olive[500] + "4D",
+    borderRadius: 24,
   },
-  greeting: {
-    fontSize: 28,
-    fontWeight: "bold",
-    marginBottom: 8,
+  emptyBlob2: {
+    position: "absolute",
+    bottom: -spacing.md,
+    left: -spacing.md,
+    width: 64,
+    height: 64,
+    backgroundColor: colors.terra[400] + "33",
+    borderRadius: 32,
   },
-  subGreeting: {
-    fontSize: 20,
-    fontWeight: "600",
-    marginBottom: 24,
+  emptyTitle: {
+    fontSize: typography.fontSize["4xl"],
+    fontWeight: typography.fontWeight.bold,
+    color: colors.olive[900],
+    textAlign: "center",
+    fontStyle: "italic",
+    marginBottom: spacing.md,
   },
-  suggestionsContainer: {
+  emptySubtitle: {
+    fontSize: typography.fontSize.xl,
+    fontWeight: typography.fontWeight.medium,
+    color: colors.olive[700],
+    textAlign: "center",
+    lineHeight: typography.fontSize.xl * 1.5,
+    marginBottom: spacing.xl,
+    maxWidth: width * 0.8,
+  },
+  suggestions: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
-    gap: 12,
-    marginTop: 16,
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
+    maxWidth: width * 0.9,
   },
   suggestionChip: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-    borderWidth: 2,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
     backgroundColor: "transparent",
+    borderWidth: 2,
+    borderColor: colors.olive[600] + "4D",
+    borderRadius: borderRadius.xl,
   },
   suggestionText: {
-    fontSize: 14,
-    fontWeight: "500",
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.olive[800],
   },
-  scrollView: {
-    flex: 1,
+  emptyHint: {
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.medium,
+    color: colors.olive[500],
+    textAlign: "center",
   },
-  scrollContent: {
-    padding: 16,
-  },
-  messageContainer: {
+  messageRow: {
     flexDirection: "row",
-    marginBottom: 16,
-    gap: 12,
+    gap: spacing.md,
+    marginBottom: spacing.xs,
   },
-  userMessageContainer: {
+  userMessageRow: {
     flexDirection: "row-reverse",
   },
-  assistantMessageContainer: {
-    flexDirection: "row",
-  },
   avatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: "center",
     justifyContent: "center",
+    ...shadows.lg,
   },
-  userAvatar: {
-    backgroundColor: "#374151",
+  avatarUser: {
+    borderRadius: borderRadius.organic,
   },
-  assistantAvatar: {
-    backgroundColor: "#8B5CF6",
+  avatarAssistant: {
+    borderRadius: borderRadius.organic + spacing.xs,
   },
   messageContent: {
     flex: 1,
-    maxWidth: width * 0.75,
+    maxWidth: "75%",
   },
   messageBubble: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 16,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    ...shadows.lg,
   },
   userBubble: {
-    alignSelf: "flex-end",
+    backgroundColor: colors.olive[50],
+    borderWidth: 0,
+    borderTopRightRadius: spacing.xs,
+    borderTopLeftRadius: borderRadius.organic,
+    borderBottomLeftRadius: borderRadius.organic,
+    borderBottomRightRadius: borderRadius.organic,
   },
   assistantBubble: {
-    borderWidth: 1,
-    alignSelf: "flex-start",
+    backgroundColor: colors.sand[100],
+    borderWidth: 2,
+    borderColor: colors.terra[500] + "33",
+    borderTopLeftRadius: spacing.xs,
+    borderTopRightRadius: borderRadius.organic,
+    borderBottomLeftRadius: borderRadius.organic,
+    borderBottomRightRadius: borderRadius.organic,
   },
   messageText: {
-    fontSize: 15,
-    lineHeight: 22,
+    fontSize: typography.fontSize.base,
+    lineHeight: typography.fontSize.base * 1.5,
+    color: colors.olive[900],
+    fontWeight: typography.fontWeight.medium,
   },
-  timestamp: {
-    fontSize: 11,
-    marginTop: 4,
+  metadata: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+    marginTop: spacing.xs,
   },
-  userTimestamp: {
-    textAlign: "right",
+  metadataUser: {
+    justifyContent: "flex-end",
   },
-  assistantTimestamp: {
-    textAlign: "left",
+  metadataText: {
+    fontSize: typography.fontSize.xs,
+    fontWeight: typography.fontWeight.semibold,
+    color: colors.olive[500],
+    letterSpacing: 0.5,
+  },
+  metadataDot: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.olive[400],
   },
 });
