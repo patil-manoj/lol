@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useCallback, useEffect } from "react";
 import { Message } from "@/types";
 import { analyzeEmotion } from "@/lib/emotionAnalysis";
@@ -47,10 +45,12 @@ export default function ChatInterface() {
       if (storedMessages) {
         try {
           const parsed = JSON.parse(storedMessages);
-          setMessages(parsed.map((m: any) => ({
-            ...m,
-            timestamp: new Date(m.timestamp)
-          })));
+          setMessages(
+            parsed.map((m: any) => ({
+              ...m,
+              timestamp: new Date(m.timestamp),
+            }))
+          );
         } catch (error) {
           console.error("Failed to load chat history:", error);
         }
@@ -309,10 +309,22 @@ export default function ChatInterface() {
   return (
     <div className="relative flex flex-col h-screen bg-sand-50 dark:bg-gray-900 overflow-hidden">
       {/* Decorative organic shapes in background */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
-        <div className="absolute -top-32 -left-32 w-96 h-96 bg-terra-200/20 dark:bg-terra-800/10 organic-blob float-particle" style={{ animationDelay: '0s' }} />
-        <div className="absolute top-1/4 -right-48 w-80 h-80 bg-olive-200/20 dark:bg-olive-800/10 organic-blob-2 float-particle" style={{ animationDelay: '5s' }} />
-        <div className="absolute -bottom-40 left-1/3 w-[500px] h-[500px] bg-sand-300/10 dark:bg-sand-800/5 organic-blob float-particle" style={{ animationDelay: '10s' }} />
+      <div
+        className="fixed inset-0 pointer-events-none overflow-hidden"
+        style={{ zIndex: 0 }}
+      >
+        <div
+          className="absolute -top-32 -left-32 w-96 h-96 bg-terra-200/20 dark:bg-terra-800/10 organic-blob float-particle"
+          style={{ animationDelay: "0s" }}
+        />
+        <div
+          className="absolute top-1/4 -right-48 w-80 h-80 bg-olive-200/20 dark:bg-olive-800/10 organic-blob-2 float-particle"
+          style={{ animationDelay: "5s" }}
+        />
+        <div
+          className="absolute -bottom-40 left-1/3 w-[500px] h-[500px] bg-sand-300/10 dark:bg-sand-800/5 organic-blob float-particle"
+          style={{ animationDelay: "10s" }}
+        />
       </div>
 
       {/* Main content */}
@@ -323,7 +335,10 @@ export default function ChatInterface() {
             <div className="flex items-center gap-4">
               <div className="relative">
                 <div className="w-12 h-12 bg-gradient-to-br from-terra-500 to-terra-700 organic-blob flex items-center justify-center shadow-lg">
-                  <Sparkles className="w-6 h-6 text-sand-50" strokeWidth={2.5} />
+                  <Sparkles
+                    className="w-6 h-6 text-sand-50"
+                    strokeWidth={2.5}
+                  />
                 </div>
                 <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-olive-500 rounded-full border-2 border-sand-100 dark:border-gray-900" />
               </div>
@@ -344,9 +359,15 @@ export default function ChatInterface() {
                 title={autoSpeak ? "Disable auto-speak" : "Enable auto-speak"}
               >
                 {autoSpeak ? (
-                  <Volume2 className="w-5 h-5 text-terra-600 dark:text-terra-400" strokeWidth={2.5} />
+                  <Volume2
+                    className="w-5 h-5 text-terra-600 dark:text-terra-400"
+                    strokeWidth={2.5}
+                  />
                 ) : (
-                  <VolumeX className="w-5 h-5 text-olive-400" strokeWidth={2.5} />
+                  <VolumeX
+                    className="w-5 h-5 text-olive-400"
+                    strokeWidth={2.5}
+                  />
                 )}
               </button>
               <button
@@ -365,7 +386,10 @@ export default function ChatInterface() {
                 className="p-2.5 rounded-2xl hover:bg-olive-100 dark:hover:bg-olive-900/30 transition-all duration-300"
                 title="Settings"
               >
-                <Settings className="w-5 h-5 text-olive-700 dark:text-sand-300" strokeWidth={2.5} />
+                <Settings
+                  className="w-5 h-5 text-olive-700 dark:text-sand-300"
+                  strokeWidth={2.5}
+                />
               </button>
               <button
                 onClick={() => {
@@ -377,7 +401,10 @@ export default function ChatInterface() {
                 className="p-2.5 rounded-2xl hover:bg-terra-100 dark:hover:bg-terra-900/30 transition-all duration-300"
                 title="Sign out"
               >
-                <LogOut className="w-5 h-5 text-terra-600 dark:text-terra-400" strokeWidth={2.5} />
+                <LogOut
+                  className="w-5 h-5 text-terra-600 dark:text-terra-400"
+                  strokeWidth={2.5}
+                />
               </button>
             </div>
           </div>
@@ -439,6 +466,23 @@ export default function ChatInterface() {
                 <div className="flex items-center justify-between py-4 border-t-2 border-olive-600/20">
                   <span className="text-sm font-semibold text-olive-800 dark:text-olive-300 tracking-wide uppercase">
                     Auto-speak
+                  </span>
+                  <button
+                    onClick={() => setAutoSpeak(!autoSpeak)}
+                    className={`relative inline-flex h-8 w-16 items-center rounded-full transition-colors duration-300 ${
+                      autoSpeak
+                        ? "bg-terra-600"
+                        : "bg-olive-300 dark:bg-olive-700"
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-6 w-6 transform rounded-full bg-sand-50 transition-transform duration-300 shadow-lg ${
+                        autoSpeak ? "translate-x-9" : "translate-x-1"
+                      }`}
+                    />
+                  </button>
+                </div>
+
                 {/* Privacy Settings */}
                 {user && (
                   <>
@@ -447,14 +491,23 @@ export default function ChatInterface() {
                         Save Chat History
                       </span>
                       <button
-                        onClick={() => updatePreferences({ allowChatStorage: !user.preferences.allowChatStorage })}
+                        onClick={() =>
+                          updatePreferences({
+                            allowChatStorage:
+                              !user.preferences.allowChatStorage,
+                          })
+                        }
                         className={`relative inline-flex h-8 w-16 items-center rounded-full transition-colors duration-300 ${
-                          user.preferences.allowChatStorage ? "bg-terra-600" : "bg-olive-300 dark:bg-olive-700"
+                          user.preferences.allowChatStorage
+                            ? "bg-terra-600"
+                            : "bg-olive-300 dark:bg-olive-700"
                         }`}
                       >
                         <span
                           className={`inline-block h-6 w-6 transform rounded-full bg-sand-50 transition-transform duration-300 shadow-lg ${
-                            user.preferences.allowChatStorage ? "translate-x-9" : "translate-x-1"
+                            user.preferences.allowChatStorage
+                              ? "translate-x-9"
+                              : "translate-x-1"
                           }`}
                         />
                       </button>
@@ -465,53 +518,52 @@ export default function ChatInterface() {
                         Personalization
                       </span>
                       <button
-                        onClick={() => updatePreferences({ allowPersonalization: !user.preferences.allowPersonalization })}
+                        onClick={() =>
+                          updatePreferences({
+                            allowPersonalization:
+                              !user.preferences.allowPersonalization,
+                          })
+                        }
                         className={`relative inline-flex h-8 w-16 items-center rounded-full transition-colors duration-300 ${
-                          user.preferences.allowPersonalization ? "bg-terra-600" : "bg-olive-300 dark:bg-olive-700"
+                          user.preferences.allowPersonalization
+                            ? "bg-terra-600"
+                            : "bg-olive-300 dark:bg-olive-700"
                         }`}
                       >
                         <span
                           className={`inline-block h-6 w-6 transform rounded-full bg-sand-50 transition-transform duration-300 shadow-lg ${
-                            user.preferences.allowPersonalization ? "translate-x-9" : "translate-x-1"
+                            user.preferences.allowPersonalization
+                              ? "translate-x-9"
+                              : "translate-x-1"
                           }`}
                         />
                       </button>
                     </div>
 
                     {/* Delete Chat History */}
-                    {user.preferences.allowChatStorage && messages.length > 0 && (
-                      <div className="pt-4 border-t-2 border-olive-600/20">
-                        <button
-                          onClick={() => {
-                            if (confirm("Are you sure you want to delete all chat history? This cannot be undone.")) {
-                              localStorage.removeItem(`chat_${user.id}`);
-                              setMessages([]);
-                            }
-                          }}
-                          className="w-full px-6 py-3.5 bg-terra-100 dark:bg-terra-900/30 hover:bg-terra-200 dark:hover:bg-terra-900/50 text-terra-800 dark:text-terra-300 border-2 border-terra-500/40 rounded-3xl transition-all duration-300 font-semibold tracking-wide flex items-center justify-center gap-2"
-                        >
-                          <Trash2 className="w-5 h-5" strokeWidth={2.5} />
-                          Delete Chat History
-                        </button>
-                      </div>
-                    )}
+                    {user.preferences.allowChatStorage &&
+                      messages.length > 0 && (
+                        <div className="pt-4 border-t-2 border-olive-600/20">
+                          <button
+                            onClick={() => {
+                              if (
+                                confirm(
+                                  "Are you sure you want to delete all chat history? This cannot be undone."
+                                )
+                              ) {
+                                localStorage.removeItem(`chat_${user.id}`);
+                                setMessages([]);
+                              }
+                            }}
+                            className="w-full px-6 py-3.5 bg-terra-100 dark:bg-terra-900/30 hover:bg-terra-200 dark:hover:bg-terra-900/50 text-terra-800 dark:text-terra-300 border-2 border-terra-500/40 rounded-3xl transition-all duration-300 font-semibold tracking-wide flex items-center justify-center gap-2"
+                          >
+                            <Trash2 className="w-5 h-5" strokeWidth={2.5} />
+                            Delete Chat History
+                          </button>
+                        </div>
+                      )}
                   </>
                 )}
-
-                <div className="flex gap-4 pt-6 border-t-2 border-olive-600/20
-                  <button
-                    onClick={() => setAutoSpeak(!autoSpeak)}
-                    className={`relative inline-flex h-8 w-16 items-center rounded-full transition-colors duration-300 ${
-                      autoSpeak ? "bg-terra-600" : "bg-olive-300 dark:bg-olive-700"
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-6 w-6 transform rounded-full bg-sand-50 transition-transform duration-300 shadow-lg ${
-                        autoSpeak ? "translate-x-9" : "translate-x-1"
-                      }`}
-                    />
-                  </button>
-                </div>
 
                 <div className="flex gap-4 pt-6">
                   <button
@@ -546,8 +598,13 @@ export default function ChatInterface() {
         {error && (
           <div className="max-w-4xl w-full mx-auto px-6 py-4">
             <div className="bg-terra-100 dark:bg-terra-900/30 border-2 border-terra-500/40 rounded-3xl p-5 flex items-start gap-4 shadow-lg">
-              <AlertCircle className="w-6 h-6 text-terra-700 dark:text-terra-400 flex-shrink-0 mt-0.5" strokeWidth={2.5} />
-              <p className="text-sm font-medium text-terra-900 dark:text-terra-300 leading-relaxed">{error}</p>
+              <AlertCircle
+                className="w-6 h-6 text-terra-700 dark:text-terra-400 flex-shrink-0 mt-0.5"
+                strokeWidth={2.5}
+              />
+              <p className="text-sm font-medium text-terra-900 dark:text-terra-300 leading-relaxed">
+                {error}
+              </p>
             </div>
           </div>
         )}
@@ -596,7 +653,10 @@ export default function ChatInterface() {
                   } disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-3xl`}
                 >
                   {isListening ? (
-                    <MicOff className="w-10 h-10 text-sand-50" strokeWidth={2.5} />
+                    <MicOff
+                      className="w-10 h-10 text-sand-50"
+                      strokeWidth={2.5}
+                    />
                   ) : (
                     <Mic className="w-10 h-10 text-sand-50" strokeWidth={2.5} />
                   )}
@@ -656,7 +716,10 @@ export default function ChatInterface() {
                   className="flex-shrink-0 p-4 rounded-3xl hover:bg-terra-100 dark:hover:bg-terra-900/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300 group"
                 >
                   {isLoading ? (
-                    <Loader2 className="w-7 h-7 text-terra-600 dark:text-terra-400 animate-spin" strokeWidth={2.5} />
+                    <Loader2
+                      className="w-7 h-7 text-terra-600 dark:text-terra-400 animate-spin"
+                      strokeWidth={2.5}
+                    />
                   ) : (
                     <Send
                       className="w-7 h-7 text-terra-600 dark:text-terra-400 group-hover:scale-110 transition-transform"
