@@ -43,3 +43,24 @@ export interface EmotionAnalysis {
   };
   dominantEmotion: string;
 }
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  createdAt: Date;
+  preferences: UserPreferences;
+}
+
+export interface UserPreferences {
+  allowChatStorage: boolean;
+  allowPersonalization: boolean;
+  voiceSettings?: VoiceSettings;
+  theme?: "light" | "dark";
+}
+
+export interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+}
