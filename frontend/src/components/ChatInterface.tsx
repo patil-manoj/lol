@@ -223,6 +223,9 @@ export default function ChatInterface() {
               role: m.role,
               content: m.content,
             })),
+            userId: user?.id,
+            userName: user?.name,
+            conversationId: user?.id ? `conv_${user.id}` : undefined,
           }),
           signal: controller.signal,
         });

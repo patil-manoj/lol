@@ -1,10 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
+import { createClient } from "@supabase/supabase-js";
 
 // Initialize Groq client
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
 });
+
+// Initialize Supabase client (optional - only if configured)
+const supabase =
+  process.env.NEXT_PUBLIC_SUPABASE_URL &&
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    ? createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      )
+    : null;
 
 // System prompt for empathetic conversation
 const SYSTEM_PROMPT = `You are Talk to Me, a warm, empathetic AI companion designed to provide emotional support and meaningful conversation to people experiencing loneliness.
@@ -47,6 +58,9 @@ interface Message {
 // Request body interface
 interface ChatRequest {
   messages: Message[];
+  userId?: string; // Optional user ID from frontend
+  userName?: string; // Optional user name for personalization
+  conversationId?: string; // Optional conversation ID for context
 }
 
 export async function POST(request: NextRequest) {
@@ -71,7 +85,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { messages } = body;
+    const { messages, userId, userName, conversationId } = body;
 
     // Validate messages
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
@@ -108,6 +122,11 @@ export async function POST(request: NextRequest) {
       })),
     ];
 
+    // Add personalization if user name is provided
+    if (userName) {
+      groqMessages[0].content += `\n\nThe user's name is ${userName}. Use their name occasionally to create a more personal connection.`;
+    }
+
     // Add crisis response guidance if needed
     if (isCrisis) {
       groqMessages.push({
@@ -131,6 +150,36 @@ export async function POST(request: NextRequest) {
     const assistantMessage =
       chatCompletion.choices[0]?.message?.content ||
       "I'm here for you. Could you tell me more about what's on your mind?";
+
+    // Optional: Store conversation in Supabase if configured and user is authenticated
+    if (supabase && userId && conversationId) {
+      try {
+        // Store user message
+        await supabase.from("messages").insert({
+          conversation_id: conversationId,
+          role: "user",
+          content: lastMessage.content,
+          emotion: null, // Could be added from frontend
+          sentiment: null, // Could be added from frontend
+        });
+
+        // Store assistant message
+        await supabase.from("messages").insert({
+          conversation_id: conversationId,
+          role: "assistant",
+          content: assistantMessage,
+        });
+
+        // Update conversation last_message_at
+        await supabase
+          .from("conversations")
+          .update({ last_message_at: new Date().toISOString() })
+          .eq("id", conversationId);
+      } catch (dbError) {
+        // Log but don't fail the request if DB storage fails
+        console.error("Failed to store conversation:", dbError);
+      }
+    }
 
     // Return response
     return NextResponse.json({

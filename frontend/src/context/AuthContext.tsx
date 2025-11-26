@@ -22,7 +22,20 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // Decode JWT token (Google credential)
 function parseJwt(token: string) {
   try {
-    const base64Url = token.split(".")[1];
+    // Check if it's a base64 encoded mock credential (from useGoogleLogin)
+    if (!token.includes(".")) {
+      const decoded = atob(token);
+      return JSON.parse(decoded);
+    }
+
+    // Real JWT token with 3 parts
+    const parts = token.split(".");
+    if (parts.length !== 3) {
+      console.error("Invalid JWT format");
+      return null;
+    }
+
+    const base64Url = parts[1];
     const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
     const jsonPayload = decodeURIComponent(
       atob(base64)
