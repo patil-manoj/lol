@@ -6,6 +6,10 @@ import React, {
   ReactNode,
 } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Google from "expo-auth-session/providers/google";
+import * as WebBrowser from "expo-web-browser";
+
+WebBrowser.maybeCompleteAuthSession();
 
 export interface User {
   id: string;
@@ -28,7 +32,7 @@ interface AuthState {
 interface AuthContextType extends AuthState {
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, name: string) => Promise<void>;
-  signInWithGoogle: (credential: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   updatePreferences: (
     preferences: Partial<User["preferences"]>
@@ -37,37 +41,6 @@ interface AuthContextType extends AuthState {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Parse JWT or base64 credential
-function parseJwt(token: string) {
-  try {
-    // Check if it's a base64 encoded mock credential
-    if (!token.includes(".")) {
-      const decoded = atob(token);
-      return JSON.parse(decoded);
-    }
-
-    // Real JWT token with 3 parts
-    const parts = token.split(".");
-    if (parts.length !== 3) {
-      console.error("Invalid JWT format");
-      return null;
-    }
-
-    const base64Url = parts[1];
-    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split("")
-        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-        .join("")
-    );
-    return JSON.parse(jsonPayload);
-  } catch (error) {
-    console.error("Failed to parse JWT:", error);
-    return null;
-  }
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
@@ -75,10 +48,87 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading: true,
   });
 
+  // Configure Google OAuth
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    clientId: "YOUR_WEB_CLIENT_ID.apps.googleusercontent.com",
+    iosClientId: "YOUR_IOS_CLIENT_ID.apps.googleusercontent.com",
+    androidClientId: "YOUR_ANDROID_CLIENT_ID.apps.googleusercontent.com",
+  });
+
+  // Handle Google OAuth response
+  useEffect(() => {
+    if (response?.type === "success") {
+      const { authentication } = response;
+      handleGoogleSignIn(authentication?.accessToken);
+    }
+  }, [response]);
+
   // Load user from AsyncStorage on mount
   useEffect(() => {
     loadUser();
   }, []);
+
+  const handleGoogleSignIn = async (accessToken?: string) => {
+    if (!accessToken) return;
+
+    try {
+      // Fetch user info from Google
+      const userInfoResponse = await fetch(
+        "https://www.googleapis.com/oauth2/v2/userinfo",
+        {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        }
+      );
+
+      const userInfo = await userInfoResponse.json();
+      const { email, name, picture, id: googleId } = userInfo;
+
+      const storedUsers = await AsyncStorage.getItem("users");
+      const users = storedUsers ? JSON.parse(storedUsers) : [];
+
+      let existingUser = users.find((u: any) => u.email === email);
+
+      if (existingUser) {
+        // User exists, sign them in
+        const { password: _, ...userWithoutPassword } = existingUser;
+        userWithoutPassword.createdAt = new Date(userWithoutPassword.createdAt);
+
+        await AsyncStorage.setItem("user", JSON.stringify(userWithoutPassword));
+        setAuthState({
+          user: userWithoutPassword,
+          isAuthenticated: true,
+          isLoading: false,
+        });
+      } else {
+        // Create new user from Google account
+        const newUser: User = {
+          id: Date.now().toString(),
+          email,
+          name: name || email.split("@")[0],
+          createdAt: new Date(),
+          preferences: {
+            allowChatStorage: false,
+            allowPersonalization: false,
+            theme: "light",
+          },
+        };
+
+        const userWithGoogle = { ...newUser, googleId, picture };
+        users.push(userWithGoogle);
+
+        await AsyncStorage.setItem("users", JSON.stringify(users));
+        await AsyncStorage.setItem("user", JSON.stringify(newUser));
+
+        setAuthState({
+          user: newUser,
+          isAuthenticated: true,
+          isLoading: false,
+        });
+      }
+    } catch (error) {
+      throw error;
+    }
+  };
 
   const loadUser = async () => {
     try {
@@ -166,58 +216,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signInWithGoogle = async (credential: string) => {
+  const signInWithGoogle = async () => {
     try {
-      const payload = parseJwt(credential);
-
-      if (!payload) {
-        throw new Error("Invalid Google credential");
-      }
-
-      const { email, name, picture, sub: googleId } = payload;
-
-      const storedUsers = await AsyncStorage.getItem("users");
-      const users = storedUsers ? JSON.parse(storedUsers) : [];
-
-      let existingUser = users.find((u: any) => u.email === email);
-
-      if (existingUser) {
-        // User exists, sign them in
-        const { password: _, ...userWithoutPassword } = existingUser;
-        userWithoutPassword.createdAt = new Date(userWithoutPassword.createdAt);
-
-        await AsyncStorage.setItem("user", JSON.stringify(userWithoutPassword));
-        setAuthState({
-          user: userWithoutPassword,
-          isAuthenticated: true,
-          isLoading: false,
-        });
-      } else {
-        // Create new user from Google account
-        const newUser: User = {
-          id: Date.now().toString(),
-          email,
-          name: name || email.split("@")[0],
-          createdAt: new Date(),
-          preferences: {
-            allowChatStorage: false,
-            allowPersonalization: false,
-            theme: "light",
-          },
-        };
-
-        const userWithGoogle = { ...newUser, googleId, picture };
-        users.push(userWithGoogle);
-
-        await AsyncStorage.setItem("users", JSON.stringify(users));
-        await AsyncStorage.setItem("user", JSON.stringify(newUser));
-
-        setAuthState({
-          user: newUser,
-          isAuthenticated: true,
-          isLoading: false,
-        });
-      }
+      await promptAsync();
     } catch (error) {
       throw error;
     }
